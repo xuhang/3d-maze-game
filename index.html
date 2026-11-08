@@ -954,26 +954,61 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .filter-scan { animation: fadeIn 1s ease both; }
+
+/* ---------- Language switcher ---------- */
+.lang-row { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.lang-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(139, 183, 190, 0.16);
+  border-radius: 7px;
+  background: rgba(6, 12, 16, 0.5);
+}
+.lang-btn {
+  min-width: 48px;
+  height: 27px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.lang-btn:hover { color: var(--text); border-color: rgba(139, 183, 190, 0.3); }
+.lang-btn.is-active {
+  color: var(--accent);
+  border-color: rgba(114, 245, 207, 0.42);
+  background: rgba(114, 245, 207, 0.08);
+}
+@media (max-width: 760px) {
+  .lang-row { margin-bottom: 8px; }
+  .lang-btn { min-width: 40px; height: 25px; font-size: 8px; padding: 0 7px; }
+}
 </style>
 </head>
 <body>
-<canvas id="scene" aria-label="3D 迷宫场景"></canvas>
+<canvas id="scene" aria-label="3D 迷宫场景" data-i18n-attr="aria-label:scene.aria"></canvas>
 <div class="vignette"></div>
 
 <div id="hud" aria-live="polite">
   <div class="brand">
     <span class="signal"></span>
     <span>FOGBOUND</span>
-    <small>雾锁迷宫</small>
+    <small data-i18n="brand.name">雾锁迷宫</small>
   </div>
 
   <div class="stats">
-    <div class="stat"><label>TIME</label><strong id="time">00:00.0</strong></div>
-    <div class="stat"><label>STEPS</label><strong id="steps">0</strong></div>
-    <div class="stat keys" id="keyStat"><label>KEYS</label><strong id="keys">0 / 3</strong></div>
+    <div class="stat"><label data-i18n="hud.time">TIME</label><strong id="time">00:00.0</strong></div>
+    <div class="stat"><label data-i18n="hud.steps">STEPS</label><strong id="steps">0</strong></div>
+    <div class="stat keys" id="keyStat"><label data-i18n="hud.keys">KEYS</label><strong id="keys">0 / 3</strong></div>
   </div>
 
-  <button id="pauseBtn" class="icon-btn" type="button" aria-label="暂停游戏"><span></span><span></span></button>
+  <button id="pauseBtn" class="icon-btn" type="button" aria-label="暂停游戏" data-i18n-attr="aria-label:hud.pauseAria"><span></span><span></span></button>
 
   <div class="objective" id="objective">
     <span class="obj-dot"></span>
@@ -981,7 +1016,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
   </div>
 
   <div class="map-panel">
-    <div class="map-head"><span>侦察地图</span><span id="mapState">SEALED</span></div>
+    <div class="map-head"><span data-i18n="hud.mapTitle">侦察地图</span><span id="mapState" data-i18n="hud.mapSealed">SEALED</span></div>
     <canvas id="minimap"></canvas>
   </div>
 
@@ -989,101 +1024,109 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
   <div id="toast" role="status"></div>
 
   <div class="hint-bar">
-    <span class="desktop-only"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动</span>
-    <span class="desktop-only"><span class="hint-dot"></span>鼠标转向</span>
-    <span class="desktop-only"><kbd>SHIFT</kbd> 冲刺</span>
-    <span class="desktop-only"><kbd>ESC</kbd> 暂停</span>
-    <span class="touch-only">左侧摇杆移动 · 右侧滑动转向 · 冲刺键加速</span>
+    <span class="desktop-only"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <span data-i18n="hint.move">移动</span></span>
+    <span class="desktop-only"><span class="hint-dot"></span><span data-i18n="hint.look">鼠标转向</span></span>
+    <span class="desktop-only"><kbd>SHIFT</kbd> <span data-i18n="hint.sprint">冲刺</span></span>
+    <span class="desktop-only"><kbd>ESC</kbd> <span data-i18n="hint.pause">暂停</span></span>
+    <span class="touch-only" data-i18n="hint.touch">左侧摇杆移动 · 右侧滑动转向 · 冲刺键加速</span>
   </div>
 
   <div class="mobile-controls">
-    <div class="joystick" id="joystick" aria-label="虚拟摇杆"><div class="knob" id="joystickKnob"></div></div>
-    <button class="sprint-btn" id="sprintBtn" type="button" aria-label="按住冲刺">冲刺</button>
+    <div class="joystick" id="joystick" aria-label="虚拟摇杆" data-i18n-attr="aria-label:hud.joystickAria"><div class="knob" id="joystickKnob"></div></div>
+    <button class="sprint-btn" id="sprintBtn" type="button" aria-label="按住冲刺" data-i18n-attr="aria-label:hud.sprintAria" data-i18n="hud.sprint">冲刺</button>
   </div>
 </div>
 
 <!-- Start screen -->
-<section id="startScreen" class="screen start-screen" aria-label="游戏开始界面">
+<section id="startScreen" class="screen start-screen" aria-label="游戏开始界面" data-i18n-attr="aria-label:start.aria">
   <div class="start-inner">
-    <div class="eyebrow"><span class="eyebrow-line"></span>ESCAPE PROTOCOL 07 · 第一人称迷宫</div>
-    <h1 aria-label="雾锁迷宫"><span>雾锁</span><span class="title-accent">迷宫</span></h1>
+    <div class="lang-row">
+      <div class="lang-switch" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.label">
+        <button type="button" class="lang-btn" data-lang="zh-CN" lang="zh-CN">简中</button>
+        <button type="button" class="lang-btn" data-lang="zh-TW" lang="zh-TW">繁中</button>
+        <button type="button" class="lang-btn" data-lang="en" lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ja" lang="ja">日本語</button>
+      </div>
+    </div>
+    <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="start.eyebrow">ESCAPE PROTOCOL 07 · 第一人称迷宫</span></div>
+    <h1 aria-label="雾锁迷宫" data-i18n-attr="aria-label:start.titleAria"><span data-i18n="start.title1">雾锁</span><span class="title-accent" data-i18n="start.title2">迷宫</span></h1>
     <div class="title-en">FOGBOUND MAZE</div>
-    <p class="lede">雾吞没了所有方向。收集散落在回廊里的钥匙，解除出口封印，然后找到走出去的路。<strong>你会记住迷宫，还是被迷宫困住？</strong></p>
+    <p class="lede"><span data-i18n="start.lede">雾吞没了所有方向。收集散落在回廊里的钥匙，解除出口封印，然后找到走出去的路。</span><strong data-i18n="start.ledeStrong">你会记住迷宫，还是被迷宫困住？</strong></p>
 
-    <div class="section-head"><span>选择难度 / DIFFICULTY</span><span>PROCEDURAL GENERATION</span></div>
-    <div class="diff-grid" role="group" aria-label="选择难度">
+    <div class="section-head"><span data-i18n="start.diffHead">选择难度 / DIFFICULTY</span><span data-i18n="start.diffHeadRight">PROCEDURAL GENERATION</span></div>
+    <div class="diff-grid" role="group" aria-label="选择难度" data-i18n-attr="aria-label:start.diffAria">
       <button type="button" class="diff-card" data-difficulty="easy" aria-pressed="false">
-        <span class="diff-index">01 / RECON</span>
-        <span class="diff-name">简单</span>
-        <span class="diff-desc">短廊 · 适合熟悉操作</span>
-        <span class="diff-stats">11 × 11 · 3 KEYS</span>
+        <span class="diff-index" data-i18n="start.index.easy">01 / RECON</span>
+        <span class="diff-name" data-i18n="start.diff.easy">简单</span>
+        <span class="diff-desc" data-i18n="start.desc.easy">短廊 · 适合熟悉操作</span>
+        <span class="diff-stats" data-i18n="start.stats.easy">11 × 11 · 3 KEYS</span>
         <span class="diff-bar"><i style="--fill: 33%"></i></span>
       </button>
       <button type="button" class="diff-card is-selected" data-difficulty="normal" aria-pressed="true">
-        <span class="diff-index">02 / STANDARD</span>
-        <span class="diff-name">普通</span>
-        <span class="diff-desc">迂回 · 建议认真记路</span>
-        <span class="diff-stats">15 × 15 · 5 KEYS</span>
+        <span class="diff-index" data-i18n="start.index.normal">02 / STANDARD</span>
+        <span class="diff-name" data-i18n="start.diff.normal">普通</span>
+        <span class="diff-desc" data-i18n="start.desc.normal">迂回 · 建议认真记路</span>
+        <span class="diff-stats" data-i18n="start.stats.normal">15 × 15 · 5 KEYS</span>
         <span class="diff-bar"><i style="--fill: 66%"></i></span>
       </button>
       <button type="button" class="diff-card" data-difficulty="hard" aria-pressed="false">
-        <span class="diff-index">03 / DEEP END</span>
-        <span class="diff-name">困难</span>
-        <span class="diff-desc">深巷 · 雾里容易迷路</span>
-        <span class="diff-stats">21 × 21 · 7 KEYS</span>
+        <span class="diff-index" data-i18n="start.index.hard">03 / DEEP END</span>
+        <span class="diff-name" data-i18n="start.diff.hard">困难</span>
+        <span class="diff-desc" data-i18n="start.desc.hard">深巷 · 雾里容易迷路</span>
+        <span class="diff-stats" data-i18n="start.stats.hard">21 × 21 · 7 KEYS</span>
         <span class="diff-bar"><i style="--fill: 100%"></i></span>
       </button>
     </div>
 
     <div class="start-actions">
-      <button id="startBtn" class="primary" type="button"><span>进入迷宫</span><span class="arrow">→</span></button>
-      <span class="start-note">点击后锁定鼠标 · 按 Esc 随时暂停</span>
+      <button id="startBtn" class="primary" type="button"><span data-i18n="start.button">进入迷宫</span><span class="arrow">→</span></button>
+      <span class="start-note" data-i18n="start.note">点击后锁定鼠标 · 按 Esc 随时暂停</span>
     </div>
 
     <div class="help-row">
-      <span class="help-item"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span class="desktop-note">移动</span><span class="touch-note">左侧摇杆移动</span></span>
-      <span class="help-item"><span class="desktop-note"><kbd>MOUSE</kbd> 转向</span><span class="touch-note">右侧滑动转向</span></span>
-      <span class="help-item"><span class="desktop-note"><kbd>SHIFT</kbd> 冲刺</span><span class="touch-note">按住冲刺键加速</span></span>
-      <span class="help-item"><span class="desktop-note"><kbd>ESC</kbd> 暂停</span><span class="touch-note">右上角暂停</span></span>
+      <span class="help-item"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span class="desktop-note" data-i18n="help.move">移动</span><span class="touch-note" data-i18n="help.touch.move">左侧摇杆移动</span></span>
+      <span class="help-item"><span class="desktop-note"><kbd>MOUSE</kbd> <span data-i18n="help.look">转向</span></span><span class="touch-note" data-i18n="help.touch.look">右侧滑动转向</span></span>
+      <span class="help-item"><span class="desktop-note"><kbd>SHIFT</kbd> <span data-i18n="help.sprint">冲刺</span></span><span class="touch-note" data-i18n="help.touch.sprint">按住冲刺键加速</span></span>
+      <span class="help-item"><span class="desktop-note"><kbd>ESC</kbd> <span data-i18n="help.pause">暂停</span></span><span class="touch-note" data-i18n="help.touch.pause">右上角暂停</span></span>
     </div>
   </div>
-  <div class="start-meta">BUILD 01.0 · NO NETWORK REQUIRED</div>
+  <div class="start-meta" data-i18n="start.meta">BUILD 01.0 · NO NETWORK REQUIRED</div>
 </section>
 
 <!-- Pause screen -->
-<section id="pauseScreen" class="screen modal-screen hidden" aria-label="游戏暂停">
+<section id="pauseScreen" class="screen modal-screen hidden" aria-label="游戏暂停" data-i18n-attr="aria-label:pause.aria">
   <div class="modal-card">
     <div class="pause-glyph"><span></span><span></span></div>
-    <div class="eyebrow">PAUSED / 07</div>
-    <h2>时间已冻结</h2>
-    <p class="modal-desc">雾暂时停下了。准备好之后，继续寻找出口。</p>
+    <div class="eyebrow" data-i18n="pause.eyebrow">PAUSED / 07</div>
+    <h2 data-i18n="pause.title">时间已冻结</h2>
+    <p class="modal-desc" data-i18n="pause.desc">雾暂时停下了。准备好之后，继续寻找出口。</p>
     <div class="pause-summary" id="pauseSummary">—</div>
-    <button id="resumeBtn" class="primary" type="button"><span>继续探索</span><span class="arrow">→</span></button>
+    <button id="resumeBtn" class="primary" type="button"><span data-i18n="pause.resume">继续探索</span><span class="arrow">→</span></button>
     <div class="modal-actions">
-      <button id="restartPauseBtn" class="ghost" type="button">重新生成迷宫</button>
-      <button id="menuPauseBtn" class="ghost" type="button">返回主菜单</button>
+      <button id="restartPauseBtn" class="ghost" type="button" data-i18n="pause.restart">重新生成迷宫</button>
+      <button id="menuPauseBtn" class="ghost" type="button" data-i18n="pause.menu">返回主菜单</button>
     </div>
-    <p class="modal-hint">按 ESC 或点击继续</p>
+    <p class="modal-hint" data-i18n="pause.hint">按 ESC 或点击继续</p>
   </div>
 </section>
 
 <!-- Win screen -->
-<section id="winScreen" class="screen modal-screen hidden" aria-label="通关结算">
+<section id="winScreen" class="screen modal-screen hidden" aria-label="通关结算" data-i18n-attr="aria-label:win.aria">
   <div class="modal-card win-card">
-    <div class="win-eyebrow">EXIT FOUND · ESCAPE CONFIRMED</div>
-    <h2>逃出生天</h2>
-    <p class="modal-desc">最后一扇门在身后合拢。雾里只剩下你的脚步回声。</p>
+    <div class="win-eyebrow" data-i18n="win.eyebrow">EXIT FOUND · ESCAPE CONFIRMED</div>
+    <h2 data-i18n="win.title">逃出生天</h2>
+    <p class="modal-desc" data-i18n="win.desc">最后一扇门在身后合拢。雾里只剩下你的脚步回声。</p>
     <div class="win-stats">
-      <div class="win-stat"><label>通关用时 / TIME</label><strong id="winTime">00:00.0</strong></div>
-      <div class="win-stat"><label>步数 / STEPS</label><strong id="winSteps">0</strong></div>
-      <div class="win-stat"><label>难度 / DIFFICULTY</label><strong id="winDiff">普通</strong></div>
-      <div class="win-stat keys"><label>钥匙 / KEYS</label><strong id="winKeys">5 / 5</strong></div>
+      <div class="win-stat"><label data-i18n="win.time">通关用时 / TIME</label><strong id="winTime">00:00.0</strong></div>
+      <div class="win-stat"><label data-i18n="win.steps">步数 / STEPS</label><strong id="winSteps">0</strong></div>
+      <div class="win-stat"><label data-i18n="win.diff">难度 / DIFFICULTY</label><strong id="winDiff">普通</strong></div>
+      <div class="win-stat keys"><label data-i18n="win.keys">钥匙 / KEYS</label><strong id="winKeys">5 / 5</strong></div>
     </div>
-    <button id="playAgainBtn" class="primary" type="button"><span>再来一局</span><span class="arrow">↻</span></button>
+    <button id="playAgainBtn" class="primary" type="button"><span data-i18n="win.again">再来一局</span><span class="arrow">↻</span></button>
     <div class="modal-actions">
-      <button id="menuWinBtn" class="ghost" type="button">返回主菜单</button>
+      <button id="menuWinBtn" class="ghost" type="button" data-i18n="win.menu">返回主菜单</button>
     </div>
-    <p class="modal-hint">每一次迷宫都会重新生成</p>
+    <p class="modal-hint" data-i18n="win.hint">每一次迷宫都会重新生成</p>
   </div>
 </section>
 
@@ -1113,10 +1156,535 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
   const lerp = (a, b, t) => a + (b - a) * t;
   const rand = (min, max) => min + Math.random() * (max - min);
 
+  /* =========================================================
+   * 国际化（i18n）
+   *
+   * 所有玩家可见文案都集中在 I18N 字典中，界面通过
+   * data-i18n / data-i18n-attr 标记自动取值，游戏逻辑通过
+   * t(key, params) 取值。{name} 形式的占位符会被 params 替换。
+   *
+   * 新增一种语言只需三步，不必改动任何界面或游戏逻辑：
+   *   1) 复制任意一个字典条目，修改键名（如 'ko'）、htmlLang、nativeName；
+   *   2) 在 match 数组中填写该语言的 BCP 47 前缀，用于自动检测；
+   *   3) 翻译 strings 里的全部键值。
+   * 注意：检测按字典声明顺序匹配，区域变体（如 zh-TW）需放在
+   * 对应主语言（zh-CN）之前，避免被更宽的前缀先命中。
+   * ========================================================= */
+
+  const FALLBACK_LANG = 'en';
+  const LANG_STORAGE_KEY = 'fogbound-maze.lang';
+
+  const I18N = {
+    'zh-TW': {
+      htmlLang: 'zh-Hant-TW',
+      nativeName: '繁體中文',
+      match: ['zh-tw', 'zh-hk', 'zh-mo', 'zh-hant'],
+      strings: {
+        'meta.title': '霧鎖迷宮 · FOGBOUND MAZE',
+        'brand.name': '霧鎖迷宮',
+        'scene.aria': '3D 迷宮場景',
+        'hud.time': '時間',
+        'hud.steps': '步數',
+        'hud.keys': '鑰匙',
+        'hud.pauseAria': '暫停遊戲',
+        'hud.mapTitle': '偵察地圖',
+        'hud.mapSealed': '封印中',
+        'hud.mapOpen': '出口開啟',
+        'hud.objectiveFind': '尋找 {n} 把鑰匙',
+        'hud.objectiveUnlocked': '出口已解鎖 · 跟隨綠色信標',
+        'hud.objectiveRemaining': '尋找鑰匙 · 還缺 {n} 把',
+        'hud.objectiveReady': '鑰匙已集齊',
+        'hud.joystickAria': '虛擬搖桿',
+        'hud.sprintAria': '按住衝刺',
+        'hud.sprint': '衝刺',
+        'hint.move': '移動',
+        'hint.look': '滑鼠轉向',
+        'hint.sprint': '衝刺',
+        'hint.pause': '暫停',
+        'hint.touch': '左側搖桿移動 · 右側滑動轉向 · 衝刺鍵加速',
+        'lang.label': '語言',
+        'start.aria': '遊戲開始介面',
+        'start.eyebrow': 'ESCAPE PROTOCOL 07 · 第一人稱迷宮',
+        'start.title1': '霧鎖',
+        'start.title2': '迷宮',
+        'start.titleAria': '霧鎖迷宮',
+        'start.lede': '霧吞沒了所有方向。收集散落在迴廊裡的鑰匙，解除出口封印，然後找到走出去的路。',
+        'start.ledeStrong': '你會記住迷宮，還是被迷宮困住？',
+        'start.diffHead': '選擇難度 / DIFFICULTY',
+        'start.diffHeadRight': '程序化生成',
+        'start.diffAria': '選擇難度',
+        'start.index.easy': '01 / 偵察',
+        'start.index.normal': '02 / 標準',
+        'start.index.hard': '03 / 深處',
+        'start.diff.easy': '簡單',
+        'start.diff.normal': '普通',
+        'start.diff.hard': '困難',
+        'start.desc.easy': '短廊 · 適合熟悉操作',
+        'start.desc.normal': '迂迴 · 建議認真記路',
+        'start.desc.hard': '深巷 · 霧裡容易迷路',
+        'start.stats.easy': '11 × 11 · 3 把鑰匙',
+        'start.stats.normal': '15 × 15 · 5 把鑰匙',
+        'start.stats.hard': '21 × 21 · 7 把鑰匙',
+        'start.button': '進入迷宮',
+        'start.note': '點擊後鎖定滑鼠 · 按 Esc 隨時暫停',
+        'start.noteTouch': '點擊開始 · 左側搖桿移動 · 右側滑動轉向',
+        'start.meta': 'BUILD 01.0 · 無需網路',
+        'help.move': '移動',
+        'help.look': '轉向',
+        'help.sprint': '衝刺',
+        'help.pause': '暫停',
+        'help.touch.move': '左側搖桿移動',
+        'help.touch.look': '右側滑動轉向',
+        'help.touch.sprint': '按住衝刺鍵加速',
+        'help.touch.pause': '右上角暫停',
+        'pause.aria': '遊戲暫停',
+        'pause.eyebrow': 'PAUSED / 07',
+        'pause.title': '時間已凍結',
+        'pause.desc': '霧暫時停下了。準備好之後，繼續尋找出口。',
+        'pause.summary': '{difficulty} · 已收集 {collected}/{total} 把鑰匙 · {time} · {steps} 步',
+        'pause.resume': '繼續探索',
+        'pause.restart': '重新生成迷宮',
+        'pause.menu': '返回主選單',
+        'pause.hint': '按 ESC 或點擊繼續',
+        'win.aria': '通關結算',
+        'win.eyebrow': 'EXIT FOUND · ESCAPE CONFIRMED',
+        'win.title': '逃出生天',
+        'win.desc': '最後一扇門在身後合攏。霧裡只剩下你的腳步回聲。',
+        'win.time': '通關用時 / TIME',
+        'win.steps': '步數 / STEPS',
+        'win.diff': '難度 / DIFFICULTY',
+        'win.keys': '鑰匙 / KEYS',
+        'win.again': '再來一局',
+        'win.menu': '返回主選單',
+        'win.hint': '每一次迷宮都會重新生成',
+        'toast.startObjective': '目標：收集 {n} 把鑰匙，找到出口',
+        'toast.key': '拾取鑰匙 · {collected} / {total}',
+        'toast.unlock': '鑰匙集齊 · 出口封印解除 · 跟隨綠色信標',
+        'toast.locked': '出口被封印 · 還缺 {n} 把鑰匙',
+        'toast.pointer': '滑鼠鎖定不可用 · 點擊畫面重試，鍵盤操作仍有效',
+        'portal.locked.title': '出口 · 封印',
+        'portal.locked.sub': '封印中 / 集齊所有鑰匙',
+        'portal.open.title': '出口 · 已解鎖',
+        'portal.open.sub': '開啟 / 出口通道'
+      }
+    },
+    'zh-CN': {
+      htmlLang: 'zh-CN',
+      nativeName: '简体中文',
+      match: ['zh-cn', 'zh-hans', 'zh-sg', 'zh'],
+      strings: {
+        'meta.title': '雾锁迷宫 · FOGBOUND MAZE',
+        'brand.name': '雾锁迷宫',
+        'scene.aria': '3D 迷宫场景',
+        'hud.time': '时间',
+        'hud.steps': '步数',
+        'hud.keys': '钥匙',
+        'hud.pauseAria': '暂停游戏',
+        'hud.mapTitle': '侦察地图',
+        'hud.mapSealed': '封印中',
+        'hud.mapOpen': '出口开放',
+        'hud.objectiveFind': '寻找 {n} 把钥匙',
+        'hud.objectiveUnlocked': '出口已解锁 · 跟随绿色信标',
+        'hud.objectiveRemaining': '寻找钥匙 · 还缺 {n} 把',
+        'hud.objectiveReady': '钥匙已集齐',
+        'hud.joystickAria': '虚拟摇杆',
+        'hud.sprintAria': '按住冲刺',
+        'hud.sprint': '冲刺',
+        'hint.move': '移动',
+        'hint.look': '鼠标转向',
+        'hint.sprint': '冲刺',
+        'hint.pause': '暂停',
+        'hint.touch': '左侧摇杆移动 · 右侧滑动转向 · 冲刺键加速',
+        'lang.label': '语言',
+        'start.aria': '游戏开始界面',
+        'start.eyebrow': 'ESCAPE PROTOCOL 07 · 第一人称迷宫',
+        'start.title1': '雾锁',
+        'start.title2': '迷宫',
+        'start.titleAria': '雾锁迷宫',
+        'start.lede': '雾吞没了所有方向。收集散落在回廊里的钥匙，解除出口封印，然后找到走出去的路。',
+        'start.ledeStrong': '你会记住迷宫，还是被迷宫困住？',
+        'start.diffHead': '选择难度 / DIFFICULTY',
+        'start.diffHeadRight': '程序化生成',
+        'start.diffAria': '选择难度',
+        'start.index.easy': '01 / 侦察',
+        'start.index.normal': '02 / 标准',
+        'start.index.hard': '03 / 深处',
+        'start.diff.easy': '简单',
+        'start.diff.normal': '普通',
+        'start.diff.hard': '困难',
+        'start.desc.easy': '短廊 · 适合熟悉操作',
+        'start.desc.normal': '迂回 · 建议认真记路',
+        'start.desc.hard': '深巷 · 雾里容易迷路',
+        'start.stats.easy': '11 × 11 · 3 把钥匙',
+        'start.stats.normal': '15 × 15 · 5 把钥匙',
+        'start.stats.hard': '21 × 21 · 7 把钥匙',
+        'start.button': '进入迷宫',
+        'start.note': '点击后锁定鼠标 · 按 Esc 随时暂停',
+        'start.noteTouch': '点击开始 · 左侧摇杆移动 · 右侧滑动转向',
+        'start.meta': 'BUILD 01.0 · 无需网络',
+        'help.move': '移动',
+        'help.look': '转向',
+        'help.sprint': '冲刺',
+        'help.pause': '暂停',
+        'help.touch.move': '左侧摇杆移动',
+        'help.touch.look': '右侧滑动转向',
+        'help.touch.sprint': '按住冲刺键加速',
+        'help.touch.pause': '右上角暂停',
+        'pause.aria': '游戏暂停',
+        'pause.eyebrow': 'PAUSED / 07',
+        'pause.title': '时间已冻结',
+        'pause.desc': '雾暂时停下了。准备好之后，继续寻找出口。',
+        'pause.summary': '{difficulty} · 已收集 {collected}/{total} 把钥匙 · {time} · {steps} 步',
+        'pause.resume': '继续探索',
+        'pause.restart': '重新生成迷宫',
+        'pause.menu': '返回主菜单',
+        'pause.hint': '按 ESC 或点击继续',
+        'win.aria': '通关结算',
+        'win.eyebrow': 'EXIT FOUND · ESCAPE CONFIRMED',
+        'win.title': '逃出生天',
+        'win.desc': '最后一扇门在身后合拢。雾里只剩下你的脚步回声。',
+        'win.time': '通关用时 / TIME',
+        'win.steps': '步数 / STEPS',
+        'win.diff': '难度 / DIFFICULTY',
+        'win.keys': '钥匙 / KEYS',
+        'win.again': '再来一局',
+        'win.menu': '返回主菜单',
+        'win.hint': '每一次迷宫都会重新生成',
+        'toast.startObjective': '目标：收集 {n} 把钥匙，找到出口',
+        'toast.key': '拾取钥匙 · {collected} / {total}',
+        'toast.unlock': '钥匙集齐 · 出口封印解除 · 跟随绿色信标',
+        'toast.locked': '出口被封印 · 还缺 {n} 把钥匙',
+        'toast.pointer': '鼠标锁定不可用 · 点击画面重试，键盘操作仍有效',
+        'portal.locked.title': '出口 · 封印',
+        'portal.locked.sub': '封印中 / 集齐所有钥匙',
+        'portal.open.title': '出口 · 已解锁',
+        'portal.open.sub': '开启 / 出口通道'
+      }
+    },
+    en: {
+      htmlLang: 'en',
+      nativeName: 'English',
+      match: ['en'],
+      strings: {
+        'meta.title': 'FOGBOUND MAZE',
+        'brand.name': 'MAZE',
+        'scene.aria': '3D maze scene',
+        'hud.time': 'TIME',
+        'hud.steps': 'STEPS',
+        'hud.keys': 'KEYS',
+        'hud.pauseAria': 'Pause game',
+        'hud.mapTitle': 'RECON MAP',
+        'hud.mapSealed': 'SEALED',
+        'hud.mapOpen': 'EXIT OPEN',
+        'hud.objectiveFind': 'Find {n} keys',
+        'hud.objectiveUnlocked': 'Exit unlocked · follow the green beacon',
+        'hud.objectiveRemaining': 'Find the keys · {n} remaining',
+        'hud.objectiveReady': 'All keys collected',
+        'hud.joystickAria': 'Virtual joystick',
+        'hud.sprintAria': 'Hold to sprint',
+        'hud.sprint': 'SPRINT',
+        'hint.move': 'Move',
+        'hint.look': 'Mouse look',
+        'hint.sprint': 'Sprint',
+        'hint.pause': 'Pause',
+        'hint.touch': 'Left stick to move · swipe right to look · sprint to dash',
+        'lang.label': 'Language',
+        'start.aria': 'Game start screen',
+        'start.eyebrow': 'ESCAPE PROTOCOL 07 · FIRST-PERSON MAZE',
+        'start.title1': 'FOGBOUND\u00A0',
+        'start.title2': 'MAZE',
+        'start.titleAria': 'FOGBOUND MAZE',
+        'start.lede': 'The fog has swallowed every direction. Gather the keys scattered through the corridors, break the seal on the exit, and find your way out.',
+        'start.ledeStrong': 'Will you remember the maze — or will it keep you?',
+        'start.diffHead': 'DIFFICULTY',
+        'start.diffHeadRight': 'PROCEDURAL GENERATION',
+        'start.diffAria': 'Choose difficulty',
+        'start.index.easy': '01 / RECON',
+        'start.index.normal': '02 / STANDARD',
+        'start.index.hard': '03 / DEEP END',
+        'start.diff.easy': 'Easy',
+        'start.diff.normal': 'Normal',
+        'start.diff.hard': 'Hard',
+        'start.desc.easy': 'Short halls · good for learning the controls',
+        'start.desc.normal': 'Twisting paths · worth memorizing',
+        'start.desc.hard': 'Deep corridors · easy to get lost in the fog',
+        'start.stats.easy': '11 × 11 · 3 KEYS',
+        'start.stats.normal': '15 × 15 · 5 KEYS',
+        'start.stats.hard': '21 × 21 · 7 KEYS',
+        'start.button': 'ENTER THE MAZE',
+        'start.note': 'Mouse locks on click · press Esc to pause anytime',
+        'start.noteTouch': 'Tap to start · left stick to move · swipe right to look',
+        'start.meta': 'BUILD 01.0 · NO NETWORK REQUIRED',
+        'help.move': 'Move',
+        'help.look': 'Look',
+        'help.sprint': 'Sprint',
+        'help.pause': 'Pause',
+        'help.touch.move': 'Left stick to move',
+        'help.touch.look': 'Swipe right to look',
+        'help.touch.sprint': 'Hold sprint to speed up',
+        'help.touch.pause': 'Pause at top right',
+        'pause.aria': 'Game paused',
+        'pause.eyebrow': 'PAUSED / 07',
+        'pause.title': 'Time, frozen',
+        'pause.desc': "The fog has stopped, for now. Continue toward the exit when you're ready.",
+        'pause.summary': '{difficulty} · Keys {collected}/{total} · {time} · {steps} steps',
+        'pause.resume': 'KEEP EXPLORING',
+        'pause.restart': 'Regenerate maze',
+        'pause.menu': 'Main menu',
+        'pause.hint': 'Press Esc or click resume',
+        'win.aria': 'Run summary',
+        'win.eyebrow': 'EXIT FOUND · ESCAPE CONFIRMED',
+        'win.title': 'ESCAPED',
+        'win.desc': 'The last door closes behind you. Only your footsteps remain in the fog.',
+        'win.time': 'TIME',
+        'win.steps': 'STEPS',
+        'win.diff': 'DIFFICULTY',
+        'win.keys': 'KEYS',
+        'win.again': 'PLAY AGAIN',
+        'win.menu': 'Main menu',
+        'win.hint': 'A new maze every run',
+        'toast.startObjective': 'Objective: collect {n} keys and find the exit',
+        'toast.key': 'Key collected · {collected} / {total}',
+        'toast.unlock': 'All keys collected · the seal is broken · follow the green beacon',
+        'toast.locked': 'The exit is sealed · {n} keys still missing',
+        'toast.pointer': 'Mouse lock unavailable · click the screen to retry; the keyboard still works',
+        'portal.locked.title': 'EXIT · SEALED',
+        'portal.locked.sub': 'LOCKED / FIND ALL KEYS',
+        'portal.open.title': 'EXIT · OPEN',
+        'portal.open.sub': 'OPEN / THE WAY OUT'
+      }
+    },
+    ja: {
+      htmlLang: 'ja',
+      nativeName: '日本語',
+      match: ['ja'],
+      strings: {
+        'meta.title': '霧の迷宮 · FOGBOUND MAZE',
+        'brand.name': '霧の迷宮',
+        'scene.aria': '3D 迷宮シーン',
+        'hud.time': '時間',
+        'hud.steps': '歩数',
+        'hud.keys': '鍵',
+        'hud.pauseAria': 'ゲームを一時停止',
+        'hud.mapTitle': '偵察マップ',
+        'hud.mapSealed': '封印中',
+        'hud.mapOpen': '出口開放',
+        'hud.objectiveFind': '鍵を {n} 本探す',
+        'hud.objectiveUnlocked': '出口の封印解除 · 緑のビーコンを追え',
+        'hud.objectiveRemaining': '鍵を探せ · あと {n} 本',
+        'hud.objectiveReady': '鍵はすべて揃った',
+        'hud.joystickAria': '仮想ジョイスティック',
+        'hud.sprintAria': '押してダッシュ',
+        'hud.sprint': 'ダッシュ',
+        'hint.move': '移動',
+        'hint.look': 'マウスで視点',
+        'hint.sprint': 'ダッシュ',
+        'hint.pause': '一時停止',
+        'hint.touch': '左スティックで移動 · 右側スワイプで視点 · ダッシュで加速',
+        'lang.label': '言語',
+        'start.aria': 'ゲーム開始画面',
+        'start.eyebrow': 'ESCAPE PROTOCOL 07 · 一人称迷宮',
+        'start.title1': '霧の',
+        'start.title2': '迷宮',
+        'start.titleAria': '霧の迷宮',
+        'start.lede': '霧がすべての方向を吞み込んだ。回廊に散らばる鍵を集め、出口の封印を解き、外へ続く道を見つけよう。',
+        'start.ledeStrong': '迷宮を覚えていられるか、それとも迷宮に囚われるか。',
+        'start.diffHead': '難易度 / DIFFICULTY',
+        'start.diffHeadRight': '自動生成',
+        'start.diffAria': '難易度を選択',
+        'start.index.easy': '01 / 偵察',
+        'start.index.normal': '02 / 標準',
+        'start.index.hard': '03 / 深部',
+        'start.diff.easy': '簡単',
+        'start.diff.normal': '普通',
+        'start.diff.hard': '難しい',
+        'start.desc.easy': '短い回廊 · 操作に慣れるのに最適',
+        'start.desc.normal': '入り組んだ道 · 道順を覚えておこう',
+        'start.desc.hard': '深い路地 · 霧の中で迷いやすい',
+        'start.stats.easy': '11 × 11 · 鍵 3 本',
+        'start.stats.normal': '15 × 15 · 鍵 5 本',
+        'start.stats.hard': '21 × 21 · 鍵 7 本',
+        'start.button': '迷宮に入る',
+        'start.note': 'クリックでマウスを固定 · Esc でいつでも一時停止',
+        'start.noteTouch': 'タップで開始 · 左スティックで移動 · 右側スワイプで視点',
+        'start.meta': 'BUILD 01.0 · ネットワーク不要',
+        'help.move': '移動',
+        'help.look': '視点',
+        'help.sprint': 'ダッシュ',
+        'help.pause': '一時停止',
+        'help.touch.move': '左スティックで移動',
+        'help.touch.look': '右側スワイプで視点',
+        'help.touch.sprint': 'ダッシュボタンで加速',
+        'help.touch.pause': '右上で一時停止',
+        'pause.aria': 'ゲーム一時停止',
+        'pause.eyebrow': 'PAUSED / 07',
+        'pause.title': '時間は止まった',
+        'pause.desc': '霧はしばし止んだ。準備ができたら、出口を目指そう。',
+        'pause.summary': '{difficulty} · 鍵 {collected}/{total} · {time} · {steps} 歩',
+        'pause.resume': '探索を続ける',
+        'pause.restart': '迷宮を再生成',
+        'pause.menu': 'メインメニューへ',
+        'pause.hint': 'Esc またはクリックで再開',
+        'win.aria': 'クリア結果',
+        'win.eyebrow': 'EXIT FOUND · ESCAPE CONFIRMED',
+        'win.title': '脱出成功',
+        'win.desc': '最後の扉が背後で閉じる。霧に残るのは、自分の足音だけ。',
+        'win.time': 'クリアタイム',
+        'win.steps': '歩数',
+        'win.diff': '難易度',
+        'win.keys': '鍵',
+        'win.again': 'もう一度',
+        'win.menu': 'メインメニューへ',
+        'win.hint': '迷宮は毎回生まれ変わる',
+        'toast.startObjective': '目標：鍵を {n} 本集め、出口を見つけよう',
+        'toast.key': '鍵を入手 · {collected} / {total}',
+        'toast.unlock': '鍵をすべて集めた · 出口の封印が解けた · 緑のビーコンを追え',
+        'toast.locked': '出口は封印されている · 鍵が {n} 本足りない',
+        'toast.pointer': 'マウスロックを利用できません · 画面をクリックして再試行してください。キーボード操作は有効です',
+        'portal.locked.title': '出口 · 封印',
+        'portal.locked.sub': '封印中 / 鍵をすべて集めよ',
+        'portal.open.title': '出口 · 解除',
+        'portal.open.sub': '開放 / 出口への道'
+      }
+    }
+  };
+
+  /* ---------- 语言运行时 ---------- */
+
+  let currentLang = FALLBACK_LANG;
+
+  /** 取当前语言的文案，{name} 占位符会被 params 替换。 */
+  function t(key, params) {
+    const entry = I18N[currentLang] || I18N[FALLBACK_LANG];
+    let text = entry.strings[key];
+    if (text == null) text = I18N[FALLBACK_LANG].strings[key];
+    if (text == null) return key;
+    if (params) {
+      text = text.replace(/\{(\w+)\}/g, (match, name) => (
+        params[name] == null ? match : String(params[name])
+      ));
+    }
+    return text;
+  }
+
+  /** 把浏览器语言标签匹配到字典；按字典顺序匹配，精确或前缀命中。 */
+  function matchLanguage(tag) {
+    if (!tag) return null;
+    const lower = String(tag).toLowerCase();
+    for (const code of Object.keys(I18N)) {
+      const prefixes = I18N[code].match || [code.toLowerCase()];
+      for (const prefix of prefixes) {
+        const value = prefix.toLowerCase();
+        if (lower === value || lower.startsWith(value + '-')) return code;
+      }
+    }
+    return null;
+  }
+
+  function readSavedLanguage() {
+    try {
+      const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
+      return saved && I18N[saved] ? saved : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function saveLanguage(code) {
+    try {
+      window.localStorage.setItem(LANG_STORAGE_KEY, code);
+    } catch (error) {
+      /* 隐私模式或禁用存储时忽略，不影响游戏 */
+    }
+  }
+
+  /** 优先使用玩家手动选择，其次按 navigator.languages 自动匹配，最后回退英语。 */
+  function detectLanguage() {
+    const saved = readSavedLanguage();
+    if (saved) return saved;
+    const tags = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || ''];
+    for (const tag of tags) {
+      const matched = matchLanguage(tag);
+      if (matched) return matched;
+    }
+    return FALLBACK_LANG;
+  }
+
+  function difficultyName(key = currentDifficulty) {
+    return t('start.diff.' + key);
+  }
+
+  function updateLanguageButtons() {
+    document.querySelectorAll('.lang-btn').forEach((button) => {
+      const active = button.dataset.lang === currentLang;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  /** 语言切换后刷新那些由游戏状态生成、不在静态标记中的文案。 */
+  function refreshLocalizedState() {
+    if (maze) {
+      updateHUD();
+      drawMinimap();
+    } else {
+      ui.objectiveText.textContent = t('hud.objectiveFind', {
+        n: DIFFICULTIES[selectedDifficulty].keys
+      });
+    }
+    if (gameState === 'paused') {
+      ui.pauseSummary.textContent = t('pause.summary', {
+        difficulty: difficultyName(),
+        collected: keysCollected,
+        total: keysTotal(),
+        time: formatTime(elapsed),
+        steps
+      });
+    }
+    if (gameState === 'won') {
+      ui.winDiff.textContent = difficultyName();
+    }
+  }
+
+  /**
+   * 应用语言：更新 html lang、标题、所有静态文案与动态状态。
+   * options.persist 为 true 时写入 localStorage（手动选择才持久化）。
+   */
+  function applyLanguage(lang, options = {}) {
+    currentLang = I18N[lang] ? lang : FALLBACK_LANG;
+    document.documentElement.lang = I18N[currentLang].htmlLang;
+    document.title = t('meta.title');
+
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+      element.textContent = t(element.dataset.i18n);
+    });
+
+    document.querySelectorAll('[data-i18n-attr]').forEach((element) => {
+      element.dataset.i18nAttr.split(';').forEach((pair) => {
+        const separator = pair.indexOf(':');
+        if (separator < 0) return;
+        const attr = pair.slice(0, separator).trim();
+        const key = pair.slice(separator + 1).trim();
+        if (attr && key) element.setAttribute(attr, t(key));
+      });
+    });
+
+    if (isTouchDevice) {
+      const note = document.querySelector('.start-note');
+      if (note) note.textContent = t('start.noteTouch');
+    }
+
+    updateLanguageButtons();
+    refreshLocalizedState();
+    if (options.persist) saveLanguage(currentLang);
+  }
+
   const DIFFICULTIES = {
-    easy:   { name: '简单', cols: 11, rows: 11, keys: 3, loops: 0.12 },
-    normal: { name: '普通', cols: 15, rows: 15, keys: 5, loops: 0.09 },
-    hard:   { name: '困难', cols: 21, rows: 21, keys: 7, loops: 0.06 }
+    easy:   { cols: 11, rows: 11, keys: 3, loops: 0.12 },
+    normal: { cols: 15, rows: 15, keys: 5, loops: 0.09 },
+    hard:   { cols: 21, rows: 21, keys: 7, loops: 0.06 }
   };
 
   const CELL = 3.4;
@@ -2099,8 +2667,8 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     const doorLight = new THREE.PointLight(COLOR_LOCKED, 0.9, 13, 1.7);
     doorLight.position.set(0, 2.0, 0.35);
 
-    const lockedTexture = createLabelTexture('出口 · 封印', 'LOCKED  /  FIND ALL KEYS', '#ff8b95');
-    const unlockedTexture = createLabelTexture('出口 · 已解锁', 'OPEN  /  THE WAY OUT', '#7dffdb');
+    const lockedTexture = createLabelTexture(t('portal.locked.title'), t('portal.locked.sub'), '#ff8b95');
+    const unlockedTexture = createLabelTexture(t('portal.open.title'), t('portal.open.sub'), '#7dffdb');
     scene.userData.ownedTextures.push(lockedTexture, unlockedTexture);
 
     const labelMaterial = new THREE.SpriteMaterial({
@@ -2309,7 +2877,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     resizeMinimap();
     drawMinimap();
     requestPointerLock();
-    showToast(`目标：收集 ${keysTotal()} 把钥匙，找到出口`, 'info', 3000);
+    showToast(t('toast.startObjective', { n: keysTotal() }), 'info', 3000);
   }
 
   function pauseGame() {
@@ -2325,8 +2893,13 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     if (document.pointerLockElement === ui.scene) {
       document.exitPointerLock();
     }
-    ui.pauseSummary.textContent =
-      `${DIFFICULTIES[currentDifficulty].name} · 已收集 ${keysCollected}/${keysTotal()} 把钥匙 · ${formatTime(elapsed)} · ${steps} 步`;
+    ui.pauseSummary.textContent = t('pause.summary', {
+      difficulty: difficultyName(),
+      collected: keysCollected,
+      total: keysTotal(),
+      time: formatTime(elapsed),
+      steps
+    });
     hideScreen(ui.pauseScreen);
     showScreen(ui.pauseScreen);
     ui.toast.classList.remove('show');
@@ -2355,7 +2928,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     ui.toast.classList.remove('show');
     ui.winTime.textContent = formatTime(finalTime);
     ui.winSteps.textContent = String(steps);
-    ui.winDiff.textContent = DIFFICULTIES[currentDifficulty].name;
+    ui.winDiff.textContent = difficultyName();
     ui.winKeys.textContent = `${keysCollected} / ${keysTotal()}`;
     hideScreen(ui.pauseScreen);
     showScreen(ui.winScreen);
@@ -2412,17 +2985,17 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     ui.keys.textContent = `${keysCollected} / ${keysTotal()}`;
 
     if (doorUnlocked) {
-      ui.objectiveText.textContent = '出口已解锁 · 跟随绿色信标';
+      ui.objectiveText.textContent = t('hud.objectiveUnlocked');
       ui.objective.classList.add('open');
-      ui.mapState.textContent = 'EXIT OPEN';
+      ui.mapState.textContent = t('hud.mapOpen');
       ui.mapState.classList.add('open');
     } else {
       const remaining = keysTotal() - keysCollected;
       ui.objectiveText.textContent = remaining > 0
-        ? `寻找钥匙 · 还缺 ${remaining} 把`
-        : '钥匙已集齐';
+        ? t('hud.objectiveRemaining', { n: remaining })
+        : t('hud.objectiveReady');
       ui.objective.classList.remove('open');
-      ui.mapState.textContent = 'SEALED';
+      ui.mapState.textContent = t('hud.mapSealed');
       ui.mapState.classList.remove('open');
     }
   }
@@ -2635,7 +3208,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     if (keysCollected >= keysTotal()) {
       unlockExitDoor();
     } else {
-      showToast(`拾取钥匙 · ${keysCollected} / ${keysTotal()}`, 'gold', 1900);
+      showToast(t('toast.key', { collected: keysCollected, total: keysTotal() }), 'gold', 1900);
     }
     updateHUD();
     drawMinimap();
@@ -2652,7 +3225,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     updateHUD();
     drawMinimap();
     playUnlockSound();
-    showToast('钥匙集齐 · 出口封印解除 · 跟随绿色信标', 'info', 3800);
+    showToast(t('toast.unlock'), 'info', 3800);
   }
 
   function checkInteractions() {
@@ -2675,7 +3248,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     if (!doorUnlocked && distanceSq < 2.7 * 2.7) {
       if (visualTime > lockedToastAt) {
         const remaining = keysTotal() - keysCollected;
-        showToast(`出口被封印 · 还缺 ${remaining} 把钥匙`, 'danger', 2200);
+        showToast(t('toast.locked', { n: remaining }), 'danger', 2200);
         playLockedSound();
         lockedToastAt = visualTime + 2.7;
       }
@@ -2899,6 +3472,12 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
   }
 
   function bindEvents() {
+    document.querySelectorAll('.lang-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        applyLanguage(button.dataset.lang, { persist: true });
+      });
+    });
+
     document.querySelectorAll('.diff-card').forEach((button) => {
       button.addEventListener('click', () => {
         selectedDifficulty = button.dataset.difficulty;
@@ -2941,7 +3520,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
     document.addEventListener('pointerlockerror', () => {
       if (gameState === 'playing') {
-        showToast('鼠标锁定不可用 · 点击画面重试，键盘操作仍有效', 'danger', 2600);
+        showToast(t('toast.pointer'), 'danger', 2600);
       }
     });
 
@@ -3034,10 +3613,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
   function initialize() {
     document.body.classList.toggle('touch-mode', isTouchDevice);
-    if (isTouchDevice) {
-      const note = document.querySelector('.start-note');
-      if (note) note.textContent = '点击开始 · 左侧摇杆移动 · 右侧滑动转向';
-    }
+    applyLanguage(detectLanguage(), { persist: false });
     refreshDifficultyCards();
     bindEvents();
     installDebugApi();

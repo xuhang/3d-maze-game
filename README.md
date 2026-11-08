@@ -33,6 +33,14 @@
 - 按住右下角「冲刺」按钮：加速
 - 右上角按钮：暂停
 
+## 语言 / Languages
+
+支持简体中文、繁體中文、English、日本語。首次打开会按浏览器语言自动选择，匹配不到时回退到英文；开始界面右上角可手动切换，选择会保存在本地，下次打开自动沿用。
+
+所有文案集中在 `index.html` 内的 `I18N` 字典中。新增语言只需复制一个字典条目、填写 `htmlLang`、`nativeName`、`match` 以及 `strings` 翻译，无需改动界面或游戏逻辑。
+
+在线试玩：https://xuhang.github.io/3d-maze-game/
+
 ## 本地打开
 
 方式一：直接双击 `index.html`，用 Chrome / Edge / Firefox / Safari 打开即可（无需服务器）。
